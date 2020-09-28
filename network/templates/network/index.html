@@ -1,5 +1,20 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    TODO
+    {% if user.is_authenticated %}
+        <div class='card'>
+            <div class='card-body'>
+                <h4>New Post</h4>
+                <form id='new-post'>
+                    <textarea class="form-control" id="post-content"></textarea>
+                    <button type="submit" id="post-btn" class="btn btn-primary">Post</button>
+                </form>
+            </div> 
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+   <script src="{% static 'network/newPost.js' %}"></script>
 {% endblock %}
