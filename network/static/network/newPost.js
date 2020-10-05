@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then(response => response.json())
       .then(result => {
-        // Print result
         console.log(result);
         content.value = '';
       });
