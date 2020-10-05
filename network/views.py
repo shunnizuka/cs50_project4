@@ -15,7 +15,8 @@ from .models import User, Post
 def index(request):
 
     allPosts = Post.objects.all()
-    
+    allPosts = allPosts.order_by("-timestamp").all()
+
     return render(request, "network/index.html", {
         "allposts": allPosts 
     })
@@ -72,6 +73,16 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
+@login_required
+def profile(request, user):
+
+    user = User.objects.get(pk=user)
+    posts = Post.objects.filter(user=user)
+
+    return render(request, "network/profile.html", {
+        "user": user,
+        "allposts": posts
+    })
 
 @csrf_exempt
 @login_required

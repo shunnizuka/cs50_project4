@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(result => {
         console.log(result);
         content.value = '';
+        location.reload(); // Refresh the page to show the new post
       });
   });
 });
