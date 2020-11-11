@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -18,7 +18,7 @@ def index(request):
     allPosts = allPosts.order_by("-timestamp").all()
 
     return render(request, "network/index.html", {
-        "allposts": allPosts 
+        "allposts": allPosts
     })
 
 
@@ -73,29 +73,67 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
-@login_required
 def profile(request, user):
 
-    user = User.objects.get(pk=user)
+    profileUser = User.objects.get(pk=user)
     posts = Post.objects.filter(user=user)
+    
+    if(request.user.is_authenticated):
+        isfollowing = User.objects.filter(pk=user, follower=request.user)
+    else:
+        isfollowing = None
 
     return render(request, "network/profile.html", {
-        "user": user,
-        "allposts": posts
+        "profileUser": profileUser,
+        "allposts": posts,
+        "isfollowing": isfollowing
     })
+
 
 @csrf_exempt
 @login_required
 def newPost(request):
-    
+
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
 
-    print('creating')
     data = json.loads(request.body)
     content = data.get("content", "")
 
     post = Post(user=request.user, content=content)
     post.save()
-        
+
     return JsonResponse({"message": "Post created successfully."}, status=201)
+
+
+@login_required
+def follow(request, user):
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    profileUser = User.objects.get(pk=user)
+    requestUser = User.objects.get(username=request.user)
+
+    if(requestUser != profileUser):
+        profileUser.follower.add(requestUser)
+        profileUser.save()
+        requestUser.following.add(profileUser)
+        requestUser.save()
+    return redirect('profile', user)
+
+@login_required
+def unfollow(request, user):
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    profileUser = User.objects.get(pk=user)
+    requestUser = User.objects.get(username=request.user)
+
+    if(requestUser != profileUser):
+        profileUser.follower.remove(requestUser)
+        profileUser.save()
+        requestUser.following.remove(profileUser)
+        requestUser.save()
+    return redirect('profile', user)

@@ -5,22 +5,34 @@
 
     <div class="card text-white bg-primary mb-3" >
         <div class="card-body">
-            <h2 class="card-title">{{user}}</h2>
-            <p class="card-text">Welcome to {{user}}'s profile!</p>
+            <h2 class="card-title">{{profileUser}}</h2>
+            <p class="card-text">Welcome to {{profileUser}}'s profile!</p>
             <hr>
             <div class="profileHeader">
                 <div class="row">
                   <div class="col">
                     <h6>Followers</h6>
-                    <h6>{{user.follower.count}}</h6>
+                    <h6>{{profileUser.follower.count}}</h6>
                   </div>
                   <div class="col">
                     <h6>Following</h6>
-                    <h6>{{user.following.count}}</h6>
+                    <h6>{{profileUser.following.count}}</h6>
                   </div>
                 </div>
               </div>
-            <a href="#" class="btn btn-light">Follow</a>
+            {% if user.is_authenticated %}
+                {% if not isfollowing %}
+                    <form method="post" action="{% url 'follow' profileUser.id %}">
+                        {% csrf_token %}
+                        <input class="btn btn-light" type="submit" value="Follow">
+                    </form>    
+                {% else %}
+                    <form method="post" action="{% url 'unfollow' profileUser.id %}">
+                        {% csrf_token %}
+                        <input class="btn btn-light" type="submit" value="UnFollow">
+                    </form>   
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 
