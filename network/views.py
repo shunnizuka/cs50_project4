@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 
 from .models import User, Post
@@ -17,9 +18,19 @@ def index(request):
     allPosts = Post.objects.all()
     allPosts = allPosts.order_by("-timestamp").all()
 
+    paginator = Paginator(allPosts, 10)
+    
+    if(request.GET.get('page') != None):
+        pageNumber = request.GET.get('page')
+    else:
+        pageNumber = 1
+
+    pageObj = paginator.get_page(pageNumber)
+
     return render(request, "network/index.html", {
-        "allPosts": allPosts,
-        "isAllPostPage": True
+        "allPosts": pageObj,
+        "isAllPostPage": True,
+        "pageNumbers": range(1, paginator.num_pages + 1)
     })
 
 
@@ -79,16 +90,26 @@ def profile(request, user):
 
     profileUser = User.objects.get(pk=user)
     posts = Post.objects.filter(user=user)
-    
+
     if(request.user.is_authenticated):
         isFollowing = User.objects.filter(pk=user, follower=request.user)
     else:
         isFollowing = None
 
+    paginator = Paginator(posts, 10)
+    
+    if(request.GET.get('page') != None):
+        pageNumber = request.GET.get('page')
+    else:
+        pageNumber = 1
+
+    pageObj = paginator.get_page(pageNumber)
+
     return render(request, "network/profile.html", {
         "profileUser": profileUser,
-        "allPosts": posts,
-        "isFollowing": isFollowing
+        "allPosts": pageObj,
+        "isFollowing": isFollowing,
+        "pageNumbers": range(1, paginator.num_pages + 1)
     })
 
 
@@ -113,7 +134,7 @@ def follow(request, user):
 
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
-    
+
     profileUser = User.objects.get(pk=user)
     requestUser = User.objects.get(username=request.user)
 
@@ -123,6 +144,7 @@ def follow(request, user):
         requestUser.following.add(profileUser)
         requestUser.save()
     return redirect('profile', user)
+
 
 @login_required
 def unfollow(request, user):
@@ -140,14 +162,25 @@ def unfollow(request, user):
         requestUser.save()
     return redirect('profile', user)
 
+
 @login_required
 def following(request, user):
 
     following = User.objects.get(pk=user).following.all()
-    followingPosts = Post.objects.filter(user__in=following).order_by("-timestamp").all()
-    print(followingPosts)
+    followingPosts = Post.objects.filter(
+        user__in=following).order_by("-timestamp").all()
+
+    paginator = Paginator(followingPosts, 10)
+
+    if(request.GET.get('page') != None):
+        pageNumber = request.GET.get('page')
+    else:
+        pageNumber = 1
+
+    pageObj = paginator.get_page(pageNumber)
 
     return render(request, "network/index.html", {
-        "allPosts": followingPosts,
-        "isAllPostPage": False
+        "allPosts": pageObj,
+        "isAllPostPage": False,
+        "pageNumbers": range(1, paginator.num_pages + 1)
     })
