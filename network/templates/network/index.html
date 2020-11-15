@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and isAllPostPage %}
         <div class='card'>
             <div class='card-body'>
                 <h4>New Post</h4>
@@ -15,7 +15,7 @@
     {% endif %}
 
     <div id='all-post'>
-        {% for post in allposts %}
+        {% for post in allPosts %}
         <div class="card" style="margin-top:10px;">
             <div class="card-body">
                 <h5 class="card-title">

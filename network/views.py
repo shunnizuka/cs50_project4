@@ -18,7 +18,8 @@ def index(request):
     allPosts = allPosts.order_by("-timestamp").all()
 
     return render(request, "network/index.html", {
-        "allposts": allPosts
+        "allPosts": allPosts,
+        "isAllPostPage": True
     })
 
 
@@ -73,20 +74,21 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
+
 def profile(request, user):
 
     profileUser = User.objects.get(pk=user)
     posts = Post.objects.filter(user=user)
     
     if(request.user.is_authenticated):
-        isfollowing = User.objects.filter(pk=user, follower=request.user)
+        isFollowing = User.objects.filter(pk=user, follower=request.user)
     else:
-        isfollowing = None
+        isFollowing = None
 
     return render(request, "network/profile.html", {
         "profileUser": profileUser,
-        "allposts": posts,
-        "isfollowing": isfollowing
+        "allPosts": posts,
+        "isFollowing": isFollowing
     })
 
 
@@ -137,3 +139,15 @@ def unfollow(request, user):
         requestUser.following.remove(profileUser)
         requestUser.save()
     return redirect('profile', user)
+
+@login_required
+def following(request, user):
+
+    following = User.objects.get(pk=user).following.all()
+    followingPosts = Post.objects.filter(user__in=following).order_by("-timestamp").all()
+    print(followingPosts)
+
+    return render(request, "network/index.html", {
+        "allPosts": followingPosts,
+        "isAllPostPage": False
+    })

@@ -21,7 +21,7 @@
                 </div>
               </div>
             {% if user.is_authenticated %}
-                {% if not isfollowing %}
+                {% if not isFollowing %}
                     <form method="post" action="{% url 'follow' profileUser.id %}">
                         {% csrf_token %}
                         <input class="btn btn-light" type="submit" value="Follow">
@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    {% for post in allposts %}
+    {% for post in allPosts %}
         <div class="card" style="margin-top:10px;">
             <div class="card-body">
                 <h5 class="card-title">{{ post.user }}</h5>
