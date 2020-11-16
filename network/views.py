@@ -184,3 +184,29 @@ def following(request, user):
         "isAllPostPage": False,
         "pageNumbers": range(1, paginator.num_pages + 1)
     })
+
+@csrf_exempt
+def editPost(request):
+
+    # Composing a new email must be via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    data = json.loads(request.body)
+
+    postId = data.get("postId", "")
+    content = data.get("content", "")
+    print(content)
+
+    postToEdit = Post.objects.get(pk=postId)
+
+    if(request.user != postToEdit.user):
+        return JsonResponse({"error": "You do not have permission to edit."}, status=400)
+
+    postToEdit.content = content
+    postToEdit.save()
+
+    post = Post.objects.get(pk=postId)
+    print(post)
+        
+    return JsonResponse({"message": "Post has been edited successfully."}, status=201)

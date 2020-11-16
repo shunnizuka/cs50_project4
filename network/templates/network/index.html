@@ -18,10 +18,17 @@
         {% for post in allPosts %}
         <div class="card" style="margin-top:10px;">
             <div class="card-body">
+                {% if user.is_authenticated %}
+                {% if user == post.user %}
+                    <button type="button" id="edit-btn" class="btn btn-primary btn-sm" style="float:right;" onclick="editPostController('{{ post.id }}', '{{ post.content }}')">Edit</button>
+                {% endif %}
+                {% endif %}
                 <h5 class="card-title">
                     <a href="{% url 'profile' post.user.id %}">{{ post.user }}</a>
                 </h5>
-                <p class="card-text">{{ post.content }}</p>
+                <div id="post-body-{{post.id}}" style='padding-bottom: 15px;'>
+                    <p class="card-text">{{ post.content }}</p>
+                </div>
                 {% if user.is_authenticated %}
                 <button class='btn btn-danger btn-sm'>
                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-suit-heart-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -65,5 +72,5 @@
 
 {% block script %}
    <script src="{% static 'network/newPost.js' %}"></script>
-   <script src="{% static 'network/posts.js' %}"></script>
+   <script src="{% static 'network/editPost.js' %}"></script>
 {% endblock %}
