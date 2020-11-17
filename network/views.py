@@ -188,7 +188,6 @@ def following(request, user):
 @csrf_exempt
 def editPost(request):
 
-    # Composing a new email must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
 
@@ -205,8 +204,24 @@ def editPost(request):
 
     postToEdit.content = content
     postToEdit.save()
-
-    post = Post.objects.get(pk=postId)
-    print(post)
         
     return JsonResponse({"message": "Post has been edited successfully."}, status=201)
+
+@csrf_exempt
+def likeUnlikePost(request):
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    data = json.loads(request.body)
+
+    post = Post.objects.get(pk=data.get("id"))
+
+    if(data.get("isLike") == True):
+        post.likes.add(request.user)
+        post.save()
+        return JsonResponse({"message": "liked"}, status=201)
+    else:
+        post.likes.remove(request.user)
+        post.save()
+        return JsonResponse({"message": "Unliked"}, status=201)
