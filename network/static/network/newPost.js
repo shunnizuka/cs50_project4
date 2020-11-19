@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelector('#post-btn').addEventListener('click', event => {
-    event.preventDefault(); // causes connection aborted error without this
+    event.preventDefault(); // Causes connection aborted error without this
 
     const content = document.querySelector('#post-content');
 

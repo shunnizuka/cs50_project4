@@ -19,7 +19,7 @@ def index(request):
     allPosts = allPosts.order_by("-timestamp").all()
 
     paginator = Paginator(allPosts, 10)
-    
+
     if(request.GET.get('page') != None):
         pageNumber = request.GET.get('page')
     else:
@@ -89,7 +89,7 @@ def register(request):
 def profile(request, user):
 
     profileUser = User.objects.get(pk=user)
-    posts = Post.objects.filter(user=user)
+    posts = Post.objects.filter(user=user).order_by("-timestamp")
 
     if(request.user.is_authenticated):
         isFollowing = User.objects.filter(pk=user, follower=request.user)
@@ -97,7 +97,7 @@ def profile(request, user):
         isFollowing = None
 
     paginator = Paginator(posts, 10)
-    
+
     if(request.GET.get('page') != None):
         pageNumber = request.GET.get('page')
     else:
@@ -185,6 +185,7 @@ def following(request, user):
         "pageNumbers": range(1, paginator.num_pages + 1)
     })
 
+
 @csrf_exempt
 def editPost(request):
 
@@ -204,8 +205,9 @@ def editPost(request):
 
     postToEdit.content = content
     postToEdit.save()
-        
+
     return JsonResponse({"message": "Post has been edited successfully."}, status=201)
+
 
 @csrf_exempt
 def likeUnlikePost(request):
@@ -224,4 +226,4 @@ def likeUnlikePost(request):
     else:
         post.likes.remove(request.user)
         post.save()
-        return JsonResponse({"message": "Unliked"}, status=201)
+        return JsonResponse({"message": "unliked"}, status=201)
